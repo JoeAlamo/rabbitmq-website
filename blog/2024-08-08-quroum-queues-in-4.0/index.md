@@ -102,7 +102,7 @@ as a backup consumer for other queues.
 To better explain this functionality, let's review all the moving parts.
 A [Single Active Consumer](/docs/consumers#single-active-consumer) is a queue argument which
 prevents a queue from delivering messages to more than one consumer, regardless of how many
-subscribed to the queue. One consumer is active, all other consumer are not. If the active
+subscribed to the queue. One consumer is active, all other consumers are not. If the active
 consumer disconnects, one of the other consumers is activated. This feature is used
 if a strict message processing order needs to be maintained.
 
@@ -173,7 +173,7 @@ For example, a RabbitMQ node with one quorum queue containing 10 million 12-byte
 about 30 seconds to start on my machine (the time from when RabbitMQ node started, until the correct
 number of messages in the queue is reported). With RabbitMQ 4.0, it just takes 5 seconds.
 
-You may wonder what the difference is between a snapshot and a checkpoint. In many ways, they are the - they actually
+You may wonder what the difference is between a snapshot and a checkpoint. In many ways, they are the same - they actually
 share the code that writes them to disk. The difference is that a snapshot is only created when the Raft log is truncated.
 For many common queue use cases, this all that is needed - older messages are consumed, we create a snapshot that no longer
 contains them and we truncate the log. At this point the queue has no memory of those messages every being present.
