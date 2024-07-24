@@ -159,14 +159,14 @@ the prefetch value as high as 1000.
 
 This is less of a feature and more an internal change, but certainly worth mentioning. Up until now,
 if a RabbitMQ node was restarted, all quorum queues on that node had to read through all of their data
-(the RAFT log) since the last snapshot to re-build their in-memory state. For example, if you publish a few million
+(the Raft log) since the last snapshot to re-build their in-memory state. For example, if you publish a few million
 messages to a quorum queue right now and then restart a node, you will see that after the node is up, the queue
 will report `0` ready messages for quite some time (at least a few seconds) and you won't be able
 to start consuming these messages. The queue is simply not yet ready to serve traffic - it's still reading
 the data from disk (note: this doesn't mean that all that data is then kept in memory, a vast majority
 of it is not, but an index / summary of the queue data is). Starting with RabbitMQ 4.0, quorum queues create
 checkpoint files which include the state of the queue at a certain point in time. Upon startup, the queue
-can read the most recent checkpoint and only the part of the RAFT log from that point in time. These means
+can read the most recent checkpoint and only the part of the Raft log from that point in time. These means
 that quorum queues take significantly less time to start.
 
 For example, a RabbitMQ node with one quorum queue containing 10 million 12-byte messages, takes
@@ -174,7 +174,7 @@ about 30 seconds to start on my machine (the time from when RabbitMQ node starte
 number of messages in the queue is reported). With RabbitMQ 4.0, it just takes 5 seconds.
 
 You may wonder what the difference is between a snapshot and a checkpoint. In many ways, they are the - they actually
-share the code that writes them to disk. The difference is that a snapshot is only created when the RAFT log is truncated.
+share the code that writes them to disk. The difference is that a snapshot is only created when the Raft log is truncated.
 For many common queue use cases, this all that is needed - older messages are consumed, we create a snapshot that no longer
 contains them and we truncate the log. At this point the queue has no memory of those messages every being present.
 Checkpoints on the other hand, are created periodicailly when we can't truncate the log. The test case scenario is a good
