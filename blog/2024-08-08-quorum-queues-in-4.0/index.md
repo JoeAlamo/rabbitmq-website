@@ -49,13 +49,13 @@ messages per second - as many as it can handle in this test scenario. The blue d
 scale on the right) is the number of ready messages in the queue (total for both priorities) - we can see it
 starts at 200k and ultimately drops to zero.
 
-![Consumer Receives a Mix of High and Low Priority Messages](message-priorities-low-first.png)
+![Consumer receives a mix of high (yellow) and low priority (green) messages](message-priorities-low-first.png)
 
 It should be intuitive, but let's consider the opposite scenario - what if we publish all the high priority
 messages first and only then all the low priority messages? In this case, the consumer will receive the messages
 in order of publishing. There's simply no reason for a low priority message to overtake a higher priority message.
 
-![Low Priority Messages Don't Overtake High Priority Messages](message-priorities-high-first.png)
+![Low priority messages (green) don't overtake high priority (yellow) messages published first](message-priorities-high-first.png)
 
 <details>
     <summary>How Was This Test Performed?</summary>
@@ -90,7 +90,7 @@ and then decides which queue to consume from.
 
 ## Consumer Priorities with Single Active Consumer
 
-Starting with RabbitMQ 4.0, a quorum queue can switchover from one single active consumer
+Starting with RabbitMQ 4.0, a quorum queue can switch over from one single active consumer
 to another, higher priority, consumer. This is particularly useful if you have multiple queues
 that should have a single consumer each, but you don't want a single instance of your application
 to be the consumer for all of them, which is likely to happen when the first application instance that starts,
@@ -113,7 +113,7 @@ of both classic and quorum queues), a certain consumer should be preferred.
 Until version 4.0, these features were effectively mutually exclusive - if Single Active Consumer was enabled,
 a new consumer would never become active, regardless of its priority, as long as the previous consumer remained active.
 Starting with 4.0, if the new consumer's priority is higher than the currently active consumer's, the quorum queue
-will switchover to the higher priority consumer: it will stop delivering messages to the current
+will switch over to the higher priority consumer: it will stop delivering messages to the current
 consumer, wait for all the messages to be acknowledged, and then will deactivate the old consumer,
 and activate the higher priority consumer instead.
 
@@ -122,7 +122,7 @@ The graph below shows this behavior. There are three metrics on this graph:
 * yellow, shows the same value but for the second, higher priority consumer
 * blue, shows the number of unacknowledged messages (axis scale on the right)
 
-![Single Active Consumer Switchover](sac-and-consumer-priority.png)
+![Single Active Consumer switchover: the normal-priority consumer (green) gets deactivated after it has acknowledged its messages, then the higher-priority consumer (yellow) gets activated](sac-and-consumer-priority.png)
 
 Initially, we only have one consumer and as expected, it consumes 9-10 msgs/s (these jumps between 9 and 10
 are simply a result of how the metrics are emitted and then displayed). This consumer is configured with the prefetch
@@ -176,7 +176,7 @@ number of messages in the queue is reported). With RabbitMQ 4.0, it just takes 5
 You may wonder what the difference is between a snapshot and a checkpoint. In many ways, they are the same - they actually
 share the code that writes them to disk. The difference is that a snapshot is only created when the Raft log is truncated.
 For many common queue use cases, this all that is needed - older messages are consumed, we create a snapshot that no longer
-contains them and we truncate the log. At this point the queue has no memory of those messages every being present.
+contains them and we truncate the log. At this point the queue has no memory of those messages ever being present.
 Checkpoints on the other hand, are created periodicailly when we can't truncate the log. The test case scenario is a good
 example - since we didn't consume any messages, the oldest messages are still there, we can't just forget about them.
 But a checkpoint still allows the queue to start more quickly. A checkpoint can be promoted to a snapshot when the log
